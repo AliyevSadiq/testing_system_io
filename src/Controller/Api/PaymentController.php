@@ -11,7 +11,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'Payment')]
 #[Route('/payment', name: 'payment.')]
 class PaymentController extends ApiController
 {
@@ -22,7 +24,15 @@ class PaymentController extends ApiController
     )
     {
     }
-
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(properties: [
+            new OA\Property(type: 'string', example: 'paypal', property: 'paymentProcessor'),
+            new OA\Property(type: 'string', example: '1', property: 'product'),
+            new OA\Property(type: 'string', example: 'IT12345678912', property: 'taxNumber'),
+            new OA\Property(type: 'string', example: '9EH3PNL', property: 'couponCode'),
+        ])
+    )]
     #[Route('/calculation', name: 'calculation', methods: 'POST')]
     public function calculation(Request $request)
     {
@@ -37,7 +47,15 @@ class PaymentController extends ApiController
             return $this->jsonError($exception->getMessage());
         }
     }
-
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(properties: [
+            new OA\Property(type: 'string', example: 'paypal', property: 'paymentProcessor'),
+            new OA\Property(type: 'string', example: '1', property: 'product'),
+            new OA\Property(type: 'string', example: 'IT12345678912', property: 'taxNumber'),
+            new OA\Property(type: 'string', example: '9EH3PNL', property: 'couponCode'),
+        ])
+    )]
     #[Route('/pay', name: 'pay', methods: 'POST')]
     public function pay(PaymentService $paymentService, Request $request)
     {
