@@ -2,9 +2,12 @@
 
 namespace App\Controller\Api;
 
+use App\Exception\PaymentException;
 use App\Form\DTO\PaymentDTO;
 use App\Form\PaymentFormType;
 use App\Utils\Calculator\AmountCalculator;
+use App\Utils\Payment\PaymentService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,7 +16,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class PaymentController extends ApiController
 {
 
-    public function __construct(private AmountCalculator $amountCalculationHandler)
+    public function __construct(
+        private AmountCalculator $amountCalculationHandler,
+        private LoggerInterface $logger
+    )
     {
     }
 
@@ -28,7 +34,34 @@ class PaymentController extends ApiController
                 'message' => "Total amount of product is {$this->getTotalAmount()}"
             ], 200);
         } catch (\Exception $exception) {
-            return $this->jsonError($exception);
+            return $this->jsonError($exception->getMessage());
+        }
+    }
+
+    #[Route('/pay', name: 'pay', methods: 'POST')]
+    public function pay(PaymentService $paymentService, Request $request)
+    {
+        try {
+            $this->processPaymentRequest($request);
+            $amount = $this->getTotalAmount();
+
+            $result = $paymentService->setPaymentProcessor($this->getRequestData()['paymentProcessor'])
+                ->makePayment($amount);
+
+            if (!$result) {
+                return $this->jsonError("Payment failed by {$this->getRequestData()['paymentProcessor']}");
+            }
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => "Payment created by {$this->getRequestData()['paymentProcessor']}"
+            ], 200);
+
+        } catch (PaymentException $exception) {
+            $this->logger->info($exception->getMessage());
+            return $this->jsonError($exception->getMessage());
+        } catch (\Exception $exception) {
+            return $this->jsonError($exception->getMessage());
         }
     }
 
