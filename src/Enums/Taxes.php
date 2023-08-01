@@ -17,7 +17,7 @@ final class Taxes
         ];
     }
 
-    public static function formulaByCountry(): array
+    public static function formulasByCountry(): array
     {
         return [
             Country::GERMANY => '/^DE\d{9}$/',
