@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Form\DTO\PaymentDTO;
 use App\Form\PaymentFormType;
+use App\Utils\Handler\AmountCalculationHandler;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,27 +13,45 @@ use Symfony\Component\Routing\Annotation\Route;
 class PaymentController extends ApiController
 {
 
+    public function __construct(private AmountCalculationHandler $amountCalculationHandler)
+    {
+    }
+
     #[Route('/calculation', name: 'calculation', methods: 'POST')]
     public function calculation(Request $request)
     {
         try {
-            $this->setRequestData($request)
-                ->setDto(PaymentDTO::class)
-                ->setForm(PaymentFormType::class)
-                ->formHandler();
-
-            if ($this->errorExists()) {
-                return new JsonResponse(['error' => $this->getErrors()], 400);
-            }
+            $this->processPaymentRequest($request);
 
             return new JsonResponse([
                 'success' => true,
-                'data'=>$this->getRequestData()
+                'message' => "Total amount of product is {$this->getTotalAmount()}"
             ], 200);
         } catch (\Exception $exception) {
-            return new JsonResponse([
-                'error' => $exception->getMessage()
-            ], $exception->getCode());
+            return $this->jsonError($exception);
         }
+    }
+
+
+    private function processPaymentRequest(Request $request)
+    {
+        $this->setRequestData($request)
+            ->setDto(PaymentDTO::class)
+            ->setForm(PaymentFormType::class)
+            ->formHandler();
+
+        if ($this->errorExists()) {
+            throw new \Exception(json_encode($this->getErrors()), 400);
+        }
+    }
+
+    private function getTotalAmount()
+    {
+        $data = $this->getRequestData();
+
+        return $this->amountCalculationHandler->setProduct($data['product'])
+            ->setCouponCode($data['couponCode'] ?? null)
+            ->setTaxNumber($data['taxNumber'])
+            ->calculation();
     }
 }

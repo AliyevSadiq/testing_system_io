@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class ApiController extends AbstractController
@@ -59,5 +60,12 @@ class ApiController extends AbstractController
 
     protected function errorExists(){
         return count($this->errors);
+    }
+
+    public function jsonError(\Exception $exception)
+    {
+        return new JsonResponse([
+            'error' => json_decode($exception->getMessage(),true)
+        ], $exception->getCode());
     }
 }

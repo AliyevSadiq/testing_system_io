@@ -21,6 +21,11 @@ class CouponRepository extends ServiceEntityRepository
         parent::__construct($registry, Coupon::class);
     }
 
+    public function activeCoupon(string $code): Coupon
+    {
+        return $this->findOneBy(['code'=>$code,'is_used'=>false]);
+    }
+
 //    /**
 //     * @return Coupon[] Returns an array of Coupon objects
 //     */

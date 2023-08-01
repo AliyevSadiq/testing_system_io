@@ -25,7 +25,7 @@ class TaxNumberValidValidator extends ConstraintValidator
             return;
         }
 
-        if (!$this->taxesHandler->taxNumberIsValid($value)){
+        if (!$this->taxesHandler->setTaxNumber($value)->taxNumberIsValid()){
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $value)
                 ->addViolation();

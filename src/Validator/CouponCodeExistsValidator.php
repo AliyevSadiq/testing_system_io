@@ -24,7 +24,7 @@ class CouponCodeExistsValidator extends ConstraintValidator
             return;
         }
 
-        $entity = $this->couponRepository->findBy(['code' => $value, 'is_used' => false]);
+        $entity = $this->couponRepository->activeCoupon($value);
 
         if (!$entity) {
             // TODO: implement the validation here
