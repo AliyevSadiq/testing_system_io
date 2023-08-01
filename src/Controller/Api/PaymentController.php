@@ -4,7 +4,7 @@ namespace App\Controller\Api;
 
 use App\Form\DTO\PaymentDTO;
 use App\Form\PaymentFormType;
-use App\Utils\Handler\AmountCalculationHandler;
+use App\Utils\Calculator\AmountCalculator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class PaymentController extends ApiController
 {
 
-    public function __construct(private AmountCalculationHandler $amountCalculationHandler)
+    public function __construct(private AmountCalculator $amountCalculationHandler)
     {
     }
 

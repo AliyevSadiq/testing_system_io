@@ -2,7 +2,7 @@
 
 namespace App\Validator;
 
-use App\Utils\TaxesHandler;
+use App\Utils\Calculator\TaxesCalculator;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -10,7 +10,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 class TaxNumberValidValidator extends ConstraintValidator
 {
 
-    public function __construct(private TaxesHandler $taxesHandler)
+    public function __construct(private TaxesCalculator $taxesHandler)
     {
     }
 

@@ -1,20 +1,27 @@
 <?php
 
 
-namespace App\Utils\Handler;
+namespace App\Utils\Calculator;
 
 
 use App\Enums\Taxes;
 
-class TaxesHandler
+class TaxesCalculator implements CalculatorInterface
 {
 
     private string $country;
     private string $taxNumber;
+    private float $price;
 
     public function setTaxNumber(string $taxNumber): self
     {
         $this->taxNumber = $taxNumber;
+        return $this;
+    }
+
+    public function setPrice(float $price): self
+    {
+        $this->price = $price;
         return $this;
     }
 
@@ -48,9 +55,9 @@ class TaxesHandler
         return false;
     }
 
-    public function calculationTax($productPrice)
+    public function calculation(): float
     {
         $taxPercentage = $this->getPercentageByCountry();
-        return ($productPrice * $taxPercentage) / 100;
+        return ($this->price * $taxPercentage) / 100;
     }
 }

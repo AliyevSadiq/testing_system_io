@@ -1,13 +1,13 @@
 <?php
 
 
-namespace App\Utils\Handler;
+namespace App\Utils\Calculator;
 
 
 use App\Entity\Product;
 use App\Repository\ProductRepository;
 
-class AmountCalculationHandler
+class AmountCalculator implements CalculatorInterface
 {
 
     private ?string $couponCode = null;
@@ -15,8 +15,8 @@ class AmountCalculationHandler
     private Product|null $product;
 
     public function __construct(
-        private TaxesHandler $taxesHandler,
-        private CouponHandler $couponHandler,
+        private TaxesCalculator $taxesHandler,
+        private CouponCalculator $couponHandler,
         private ProductRepository $productRepository
     )
     {
@@ -40,15 +40,19 @@ class AmountCalculationHandler
         return $this;
     }
 
-    public function calculation()
+    public function calculation():float
     {
-        $discount =$this->couponCode ? $this->couponHandler->setCouponByCode($this->couponCode)
-            ->calcDiscount($this->product->getPrice()) : 0;
+        $price = $this->product->getPrice();
+
+        $discount = $this->couponCode ? $this->couponHandler->setCouponByCode($this->couponCode)
+            ->setPrice($price)
+            ->calculation() : 0;
 
         $discountedProductPrice = $this->product->getPrice() - $discount;
 
         $taxes = $this->taxesHandler->setTaxNumber($this->taxNumber)
-            ->calculationTax($discountedProductPrice);
+            ->setPrice($price)
+            ->calculation();
         return $discountedProductPrice + $taxes;
     }
 }
