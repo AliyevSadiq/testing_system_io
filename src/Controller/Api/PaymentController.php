@@ -30,7 +30,7 @@ class PaymentController extends ApiController
             new OA\Property(type: 'string', example: 'paypal', property: 'paymentProcessor'),
             new OA\Property(type: 'string', example: '1', property: 'product'),
             new OA\Property(type: 'string', example: 'IT12345678912', property: 'taxNumber'),
-            new OA\Property(type: 'string', example: '9EH3PNL', property: 'couponCode'),
+            new OA\Property(type: 'string', example: '', property: 'couponCode'),
         ])
     )]
     #[Route('/calculation', name: 'calculation', methods: 'POST')]
