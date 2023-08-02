@@ -26,12 +26,22 @@ Open a command console, enter your project directory and execute:
 ```console
 $ sudo make init
 $ sudo make app-init
-$ sudo make app-migrate
-$ sudo make app-fixture-load
 ```
 
 
 **Step 3:**
+
+Create .env.local file from .env file:
+
+**Step 4:**
+
+Execute this commands for creating tables and for adding with data
+
+```console
+$ sudo make app-migrate
+$ sudo make app-fixture-load
+```
+**Step 5:**
 
 For testing api open the http://127.0.0.1:8888/api/doc url:
 
