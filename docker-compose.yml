@@ -1,21 +1,55 @@
-version: '3'
+version: '3.8'
 
 services:
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-15}-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+
+  nginx:
+    container_name: testing__nginx
+    build: ./docker/nginx
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+      - .:/src:delegated
+    ports:
+      - 8888:80
+
+  php-fpm:
+    env_file:
+      - .env.local
+    container_name: testing__php-fpm
+    build: ./docker/php-fpm
+    volumes:
+      - .:/src:delegated
+    ports:
+      - 9001:9000
+
+  php-cli:
+    env_file:
+      - .env.local
+    container_name: testing__php-cli
+    build: ./docker/php-cli
+    volumes:
+      - .:/src:delegated
+      - composer_cache:/home/appuser/.composer/cache:delegated
+
+
+  mysql:
+    env_file:
+      - .env.local
+    container_name: testing__mysql
+    build: ./docker/mysql
+    volumes:
+      - mysql_data:/var/lib/mysql:delegated
+    command: --sql_mode=""
+    environment:
+      MYSQL_USER: testing
+      MYSQL_ROOT_PASSWORD: testing
+      MYSQL_PASSWORD: testing
+      MYSQL_DATABASE: testing_db
+      SERVICE_NAME: mysql
+      TZ: Asia/Baku
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 3308:3306
 
 volumes:
-###> doctrine/doctrine-bundle ###
-  database_data:
-###< doctrine/doctrine-bundle ###
+  composer_cache:
+  mysql_data:
